@@ -1,39 +1,24 @@
 {
-  "name": "playwright-booker",
+  "name": "playwright-test-project",
   "version": "1.0.0",
-  "description": "Playwright testing project with TypeScript for demo app testing",
+  "description": "Simple Playwright TypeScript project for testing Shady Meadows B&B application",
   "main": "index.js",
   "scripts": {
-    "setup": "node scripts/setup.js",
-    "test": "npx playwright test",
-    "test:headed": "npx playwright test --headed",
-    "test:debug": "npx playwright test --debug",
-    "test:ui": "npx playwright test --ui",
-    "test:smoke": "npx playwright test --grep @smoke",
-    "test:regression": "npx playwright test --grep @regression",
-    "test:api": "npx playwright test tests/auth.spec.ts",
-    "test:ui-only": "npx playwright test tests/ui.spec.ts",
-    "test:booking": "npx playwright test tests/booking.spec.ts",
-    "report": "npx playwright show-report",
-    "allure:generate": "allure generate allure-results --clean -o allure-report",
-    "allure:serve": "allure serve allure-results",
-    "allure:open": "allure open allure-report",
-    "test:allure": "npm run test && npm run allure:generate && npm run allure:open",
-    "clean": "rm -rf test-results playwright-report allure-results allure-report",
-    "clean:install": "npm run clean && npm ci && npx playwright install"
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "install-browsers": "playwright install"
   },
-  "keywords": ["playwright", "testing", "typescript", "automation"],
+  "keywords": [
+    "playwright",
+    "testing",
+    "typescript"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
-    "@types/node": "^24.2.1",
-    "typescript": "^5.9.2",
-    "allure-playwright": "^3.3.3",
-    "allure-commandline": "^2.34.1"
-  },
-  "dependencies": {
-    "axios": "^1.11.0",
-    "dotenv": "^17.2.1"
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }
