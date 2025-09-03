@@ -38,7 +38,11 @@ test.describe('Main Page Tests', () => {
     });
 
     await test.step('Verify Single Room details page is loaded', async () => {
-      await mainPage.verifyRoomDetailsPage('Single');
+      const roomHeaderLocator = mainPage.getRoomDetailsHeaderLocator('Single');
+      const reserveButtonLocator = mainPage.getReserveNowButtonLocator();
+      
+      await expect(roomHeaderLocator).toBeVisible();
+      await expect(reserveButtonLocator).toBeVisible();
     });
 
     await test.step('Verify room header and Reserve Now button are visible', async () => {
@@ -64,7 +68,11 @@ test.describe('Main Page Tests', () => {
         });
         
         await test.step('Verify room details page', async () => {
-          await mainPage.verifyRoomDetailsPage(roomType);
+          const roomHeaderLocator = mainPage.getRoomDetailsHeaderLocator(roomType);
+          const reserveButtonLocator = mainPage.getReserveNowButtonLocator();
+          
+          await expect(roomHeaderLocator).toBeVisible();
+          await expect(reserveButtonLocator).toBeVisible();
         });
         
         await test.step('Verify Reserve Now button is present', async () => {

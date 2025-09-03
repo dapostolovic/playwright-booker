@@ -1,4 +1,4 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class MainPage extends BasePage {
@@ -76,16 +76,13 @@ export class MainPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async verifyRoomDetailsPage(expectedRoomTitle: string): Promise<void> {
+  getRoomDetailsHeaderLocator(expectedRoomTitle: string): Locator {
     const headerText = `${expectedRoomTitle} Room`;
-    
-    // Verify room title header is visible
-    const roomHeader = this.roomDetailsHeader.filter({ hasText: headerText });
-    await expect(roomHeader).toBeVisible();
+    return this.roomDetailsHeader.filter({ hasText: headerText });
+  }
 
-    // Verify Reserve Now button is visible
-    const reserveButton = this.reserveNowButton.filter({ hasText: 'Reserve Now' });
-    await expect(reserveButton).toBeVisible();
+  getReserveNowButtonLocator(): Locator {
+    return this.reserveNowButton.filter({ hasText: 'Reserve Now' });
   }
 
   async getRoomDetailsHeaderText(): Promise<string> {
