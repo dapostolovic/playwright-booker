@@ -7,19 +7,23 @@ test.describe('Main Page Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     mainPage = new MainPage(page);
-    await mainPage.gotoMainPage();
+    await test.step('Navigate to main page', async () => {
+      await mainPage.gotoMainPage();
+    });
   });
 
   test('should display welcome title', async () => {
-    // Verify the welcome title is visible
-    const isTitleVisible = await mainPage.isWelcomeTitleVisible();
-    expect(isTitleVisible).toBeTruthy();
+    await test.step('Verify welcome title is visible', async () => {
+      const isTitleVisible = await mainPage.isWelcomeTitleVisible();
+      expect(isTitleVisible).toBeTruthy();
+    });
   });
 
   test('welcome title should contain name of the hotel', async () => {
-    // Verify the welcome title contains the specific hotel name
-    const welcomeTitleText = await mainPage.getWelcomeTitleText();
-    expect(welcomeTitleText).toContain('Welcome to Shady Meadows B&B');
+    await test.step('Get welcome title text', async () => {
+      const welcomeTitleText = await mainPage.getWelcomeTitleText();
+      expect(welcomeTitleText).toContain('Welcome to Shady Meadows B&B');
+    });
   });
 
   test('Initiate Single room booking and verify if it can be reserved', async () => {
@@ -29,35 +33,44 @@ test.describe('Main Page Tests', () => {
       throw new Error('Single room test data not found');
     }
 
-    // Select Single room and click Book Now
-    await mainPage.selectRoomAndInitiateBooking('Single');
+    await test.step('Select Single room and initiate booking', async () => {
+      await mainPage.selectRoomAndInitiateBooking('Single');
+    });
 
-    // Verify Single Room details page is loaded
-    await mainPage.verifyRoomDetailsPage('Single');
+    await test.step('Verify Single Room details page is loaded', async () => {
+      await mainPage.verifyRoomDetailsPage('Single');
+    });
 
-    // Verify room header and Reserve Now button are visible
-    const headerText = await mainPage.getRoomDetailsHeaderText();
-    expect(headerText).toContain('Single Room');
-    
-    const isReserveButtonVisible = await mainPage.isReserveNowButtonVisible();
-    expect(isReserveButtonVisible).toBe(true);
+    await test.step('Verify room header and Reserve Now button are visible', async () => {
+      const headerText = await mainPage.getRoomDetailsHeaderText();
+      expect(headerText).toContain('Single Room');
+      
+      const isReserveButtonVisible = await mainPage.isReserveNowButtonVisible();
+      expect(isReserveButtonVisible).toBe(true);
+    });
   });
 
   test('Verify all room types can be selected for booking', async () => {
     const roomTypes: Array<'Single' | 'Double' | 'Suite'> = ['Single', 'Double', 'Suite'];
 
     for (const roomType of roomTypes) {
-      // Navigate back to homepage for each room type
-      await mainPage.gotoMainPage();
-      
-      // Select room and initiate booking
-      await mainPage.selectRoomAndInitiateBooking(roomType);
-      
-      // Verify room details page
-      await mainPage.verifyRoomDetailsPage(roomType);
-      
-      // Verify Reserve Now button is present
-      expect(await mainPage.isReserveNowButtonVisible()).toBe(true);
+      await test.step(`Test booking for ${roomType} room type`, async () => {
+        await test.step('Navigate back to homepage', async () => {
+          await mainPage.gotoMainPage();
+        });
+        
+        await test.step('Select room and initiate booking', async () => {
+          await mainPage.selectRoomAndInitiateBooking(roomType);
+        });
+        
+        await test.step('Verify room details page', async () => {
+          await mainPage.verifyRoomDetailsPage(roomType);
+        });
+        
+        await test.step('Verify Reserve Now button is present', async () => {
+          expect(await mainPage.isReserveNowButtonVisible()).toBe(true);
+        });
+      });
     }
   });
 });

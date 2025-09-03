@@ -223,6 +223,23 @@ export const adminRoomTestData = {
       radio: false,
       views: true
     }
+  },
+
+  testRoomForAPI: {
+    roomName: '900api',
+    type: 'Suite' as const,
+    accessible: true,
+    description: 'Room created via API',
+    image: 'https://www.gentinghotel.co.uk/_next/image?url=https%3A%2F%2Fs3.eu-west-2.amazonaws.com%2Fstaticgh.gentinghotel.co.uk%2Fuploads%2Ffeed-cards%2F_750x750_crop_center-center_none%2FRW_Hotel_Finals_GentingSuiteTable_sqr.jpg&w=1080&q=75',
+    roomPrice: 999,
+    features: {
+      wifi: true,
+      refreshments: true,
+      tv: true,
+      safe: true,
+      radio: true,
+      views: true
+    }
   }
 };
 

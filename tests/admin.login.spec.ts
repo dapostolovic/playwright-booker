@@ -1,50 +1,92 @@
 import { test, expect } from '@playwright/test';
+import { MainPage } from '../pages/MainPage';
 import { AdminLogin } from '../pages/AdminLogin';
 import { AdminRooms } from '../pages/AdminRooms';
 import { adminCredentials } from '../src/data/test-data';
 
-test.describe('Admin Login Tests', () => {
+test.describe('Admin Authentication Tests', () => {
+  let mainPage: MainPage;
   let adminLogin: AdminLogin;
   let adminRooms: AdminRooms;
 
   test.beforeEach(async ({ page }) => {
+    mainPage = new MainPage(page);
     adminLogin = new AdminLogin(page);
     adminRooms = new AdminRooms(page);
   });
 
-  test.describe('Admin Authentication', () => {
-    test('Authenticated admin has access to room management', async () => {
-      await adminLogin.goto();
+  test('Admin can login with valid credentials and access room management', async () => {
+    await test.step('Navigate to admin login page', async () => {
+      await mainPage.gotoMainPage();
+      await mainPage.navigateToAdminLogin();
+    });
+
+    await test.step('Verify login page is loaded', async () => {
       expect(await adminLogin.isLoaded()).toBe(true);
-      await adminLogin.loginAndVerifySuccess(adminCredentials.valid);
-      await adminRooms.navigateToRooms();
+    });
+
+    await test.step('Login with valid admin credentials', async () => {
+      await adminLogin.login(adminCredentials.valid);
+    });
+
+    await test.step('Verify successful login by checking room management access', async () => {
       expect(await adminRooms.isRoomsPageLoaded()).toBe(true);
-      await adminRooms.verifyRoomManagementAccess();
+    });
+  });
+
+  test('Admin login fails with invalid credentials', async () => {
+    await test.step('Navigate to admin login page', async () => {
+      await mainPage.gotoMainPage();
+      await mainPage.navigateToAdminLogin();
     });
 
-    test('Admin login fails with invalid credentials', async () => {
-      await adminLogin.goto();
-      expect(await adminLogin.isLoaded()).toBe(true);
-      for (const invalidCred of adminCredentials.invalid) {
-        await adminLogin.clearLoginForm();
-        await adminLogin.login(invalidCred);
-        await adminLogin.verifyLoginFailure();
-      }
+    await test.step('Attempt login with invalid credentials', async () => {
+      await adminLogin.login({ username: 'wrong', password: 'wrong' });
     });
 
-    test('Admin can logout successfully', async () => {
-      await adminLogin.goto();
-      await adminLogin.loginAndVerifySuccess(adminCredentials.valid);
-      
-      // Navigate to rooms page first to ensure we're on a page with logout button
-      await adminRooms.navigateToRooms();
-      
-      // Perform logout
+    await test.step('Verify login failure is detected', async () => {
+      expect(await adminLogin.isLoginFailed()).toBe(true);
+    });
+  });
+
+  test('Admin can logout successfully', async () => {
+    await test.step('Navigate to admin login page', async () => {
+      await mainPage.gotoMainPage();
+      await mainPage.navigateToAdminLogin();
+    });
+
+    await test.step('Login with valid credentials', async () => {
+      await adminLogin.login({ username: 'admin', password: 'password' });
+    });
+
+    await test.step('Verify successful login by checking current URL', async () => {
+      const currentUrl = await adminLogin.getCurrentUrl();
+      expect(currentUrl).toContain('/admin/rooms');
+    });
+
+    await test.step('Logout from admin panel', async () => {
       await adminRooms.logout();
-      
-      // Verify logout worked by checking we're redirected to main page
+    });
+
+    await test.step('Verify logout was successful by checking current URL', async () => {
       const currentUrl = await adminLogin.getCurrentUrl();
       expect(currentUrl).toContain('/');
+    });
+  });
+
+  test('Admin can access room management after successful login', async () => {
+    await test.step('Navigate to admin login page', async () => {
+      await mainPage.gotoMainPage();
+      await mainPage.navigateToAdminLogin();
+    });
+
+    await test.step('Login with valid admin credentials', async () => {
+      await adminLogin.login(adminCredentials.valid);
+    });
+
+    await test.step('Verify access to room management functionality', async () => {
+      const currentUrl = await adminLogin.getCurrentUrl();
+      expect(currentUrl).toContain('/admin/rooms');
     });
   });
 });

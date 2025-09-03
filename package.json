@@ -7,7 +7,13 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "install-browsers": "playwright install"
+    "test:debug": "playwright test --debug",
+    "install-browsers": "playwright install",
+    "report": "playwright show-report",
+    "test:contact": "playwright test tests/contact.spec.ts",
+    "test:admin": "playwright test tests/admin.login.spec.ts tests/admin.rooms.spec.ts",
+    "test:api": "playwright test tests/api.auth.spec.ts",
+    "clean": "rmdir /s /q test-results playwright-report 2>nul || true"
   },
   "keywords": [
     "playwright",
