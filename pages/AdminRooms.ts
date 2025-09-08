@@ -1,5 +1,6 @@
-import { Locator, expect } from '@playwright/test';
+import { Locator, test } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { Routes } from '../src/config/routes';
 
 export interface AdminRoomFormData {
   roomName: string;
@@ -52,14 +53,40 @@ export class AdminRooms extends BasePage {
     this.roomErrorMessage = page.locator('.alert.alert-danger');
   }
 
+  async performCompleteRoomCreation(roomData: AdminRoomFormData): Promise<void> {
+    await test.step('Fill room creation form with valid data', async () => {
+      await this.fillRoomForm(roomData);
+    });
+    
+    await test.step('Submit room creation form', async () => {
+      await this.submitRoomCreation();
+    });
+  }
+
+  async performRoomDeletion(roomName: string): Promise<void> {
+    await test.step('Verify test room exists before deletion', async () => {
+      const roomElement = this.getRoomElement(roomName);
+      await roomElement.waitFor({ state: 'visible' });
+    });
+    
+    await test.step('Delete the test room', async () => {
+      await this.deleteRoom(roomName);
+    });
+  }
+
+  async attemptInvalidRoomCreation(roomData: AdminRoomFormData): Promise<void> {
+    await test.step('Attempt to create room with invalid data', async () => {
+      await this.fillRoomForm(roomData);
+      await this.submitRoomCreation();
+    });
+  }
+  
   async isRoomsPageLoaded(): Promise<boolean> {
     const currentUrl = await this.getCurrentUrl();
-    const isCorrectUrl = currentUrl.includes('/admin/rooms');
+    const isCorrectUrl = currentUrl.includes(Routes.adminRooms);
     
-    // Also verify that key elements are visible
-    const hasRoomForm = await this.roomFormContainer.isVisible();
-    
-    return isCorrectUrl && hasRoomForm;
+    // Remove the element verification - that belongs in tests
+    return isCorrectUrl;
   }
 
   async logout(): Promise<void> {
@@ -108,7 +135,7 @@ export class AdminRooms extends BasePage {
 
   async deleteRoom(roomName: string): Promise<void> {
     const deleteButton = this.getRoomListItem(roomName).locator('.roomDelete');
-    await deleteButton.waitFor({ state: 'visible', timeout: 500 });
+    await deleteButton.waitFor({ state: 'visible' });
     await deleteButton.click();
   }
 
@@ -118,11 +145,6 @@ export class AdminRooms extends BasePage {
 
   getRoomCreationErrorElement(): Locator {
     return this.roomErrorMessage;
-  }
-
-  async attemptInvalidRoomCreation(roomData: AdminRoomFormData): Promise<void> {
-    await this.fillRoomForm(roomData);
-    await this.submitRoomCreation();
   }
   
   getRoomListItem(roomName: string): Locator {

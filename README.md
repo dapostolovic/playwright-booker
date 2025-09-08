@@ -95,8 +95,12 @@ playwright-booker-demo/
 │   ├── AdminLogin.ts              # Page object for admin login functionality
 │   └── AdminRooms.ts              # Page object for admin room management
 ├── src/
-│   └── data/
-│       └── test-data.ts           # Test data for all scenarios
+│   ├── config/
+│   │   └── routes.ts              # Application route constants
+│   ├── data/
+│   │   └── test-data.ts           # Test data for all scenarios
+│   └── utils/
+│       └── test-helpers.ts        # Utility functions for test validation and data generation
 ├── tests/
 │   ├── main.page.spec.ts          # Main page tests
 │   ├── contact.spec.ts            # Contact form tests with data-driven negative testing
@@ -104,6 +108,8 @@ playwright-booker-demo/
 │   ├── admin.rooms.spec.ts        # Admin room management tests
 │   ├── api.auth.spec.ts           # API authentication tests
 │   └── config.spec.ts             # Configuration validation tests
+├── playwright-report/             # Generated HTML test reports
+├── test-results/                  # Test execution artifacts
 ├── playwright.config.js           # Main Playwright configuration with environment support
 ├── package.json                   # Project dependencies and scripts
 ├── tsconfig.json                  # TypeScript configuration
@@ -201,6 +207,17 @@ playwright-booker-demo/
 - **Type Safety**: Full TypeScript support with proper Locator types
 - **Optimized Locators**: Improved room deletion using `:has()` selector for better reliability
 
+### Utility Functions (`src/utils/test-helpers.ts`)
+- **Error Message Validation**: Centralized functions for expected error message validation
+- **Unique Data Generation**: Helper functions for generating unique test data (room names, room numbers)
+- **Test Data Helpers**: Reusable functions for common test scenarios
+- **Maintainable Validation**: Centralized error message mapping for consistent test assertions
+
+### Route Management (`src/config/routes.ts`)
+- **Centralized Routes**: Application route constants for consistent navigation
+- **Type Safety**: TypeScript constants for route definitions
+- **Maintainable URLs**: Single source of truth for all application routes
+
 ### Code Quality
 - **Clean Architecture**: Separation of concerns with dedicated modules
 - **Maintainable Structure**: Easy to extend and modify
@@ -234,9 +251,11 @@ playwright-booker-demo/
 ### UI Tests
 1. **Add locators** to the appropriate page object in the `pages/` directory
 2. **Add test data** to `src/data/test-data.ts` if needed (use data-driven structures for multiple scenarios)
-3. **Create new test files** in the `tests/` directory following the naming convention: `feature.spec.ts`
-4. **Follow the existing pattern** for test structure and assertions
-5. **Use data-driven approaches** for multiple similar test scenarios
+3. **Add utility functions** to `src/utils/test-helpers.ts` for validation or data generation
+4. **Add routes** to `src/config/routes.ts` if new navigation paths are needed
+5. **Create new test files** in the `tests/` directory following the naming convention: `feature.spec.ts`
+6. **Follow the existing pattern** for test structure and assertions
+7. **Use data-driven approaches** for multiple similar test scenarios
 
 ### API Tests
 1. **Use environment-aware URLs**: Access API endpoints via `process.env.API_BASE_URL`
@@ -276,6 +295,16 @@ Environment variables can be set via command line or environment files for CI/CD
 - `npm run install-browsers` - Install Playwright browsers
 - `npm run report` - Show Playwright HTML report
 - `npm run clean` - Clean test results and reports
+
+## Dependencies
+
+### Production Dependencies
+- `@faker-js/faker` - For generating realistic test data
+
+### Development Dependencies
+- `@playwright/test` - Core Playwright testing framework
+- `@types/node` - TypeScript definitions for Node.js
+- `typescript` - TypeScript compiler
 
 ## Troubleshooting
 

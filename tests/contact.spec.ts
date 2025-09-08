@@ -1,65 +1,47 @@
 import { test, expect } from '@playwright/test';
 import { MainPage } from '../pages/MainPage';
 import { contactFormTestData } from '../src/data/test-data';
+import { getInvalidMessageSendExpectedErrorMessage } from '../src/utils/test-helpers';
 
 test.describe('Contact Form Tests', () => {
   let mainPage: MainPage;
 
   test.beforeEach(async ({ page }) => {
     mainPage = new MainPage(page);
-    
-    await test.step('Navigate to homepage with contact form', async () => {
-      await mainPage.gotoMainPage();
-    });
-    
-    await test.step('Verify homepage and contact form are loaded', async () => {
-      expect(await mainPage.isHomepageLoaded()).toBe(true);
-      expect(await mainPage.isContactFormVisible()).toBe(true);
-    });
+    await mainPage.performHomepageNavigation();
   });
 
   test('Send valid contact message successfully', async () => {
-    const validContact = contactFormTestData.validContact;
+    const validContact = contactFormTestData.generateValidContact();
     
-    await test.step('Fill contact form with valid data', async () => {
-      await mainPage.fillContactForm(validContact);
-    });
-    
-    await test.step('Submit contact form', async () => {
-      await mainPage.submitContactForm();
-    });
-    
-    await test.step('Verify success message is displayed', async () => {
-      await expect(mainPage.getContactFormSuccessElement(validContact.name)).toBeVisible({ timeout: 500 });
-    });
+    await mainPage.performValidContactSubmission(validContact);
+    await expect(mainPage.getContactFormSuccessElement(validContact.name),'Success message is not displayed').toBeVisible();
   });
 
   // Data-driven negative tests
-  for (const invalidContact of contactFormTestData.invalidContacts) {
+  for (const invalidContact of contactFormTestData.generateInvalidContacts()) {
     test(`Contact form shows error for invalid data - ${invalidContact.testName}`, async () => {
-      await test.step('Attempt to submit contact form with invalid data', async () => {
-        await mainPage.attemptInvalidContactSubmission(invalidContact);
-      });
-      
-      await test.step('Verify error message is displayed', async () => {
-        await expect(mainPage.getContactFormErrorElement()).toBeVisible({ timeout: 500 });
-      });
+      await mainPage.performInvalidContactSubmission(invalidContact);
+
+      const expectedMessage = getInvalidMessageSendExpectedErrorMessage(invalidContact.testName!);
+      await expect(mainPage.getContactFormErrorElement(), 'Error message content is incorrect')
+        .toContainText(expectedMessage);
     });
   }
 
-  test('Submit contact form with maximum allowed character limits', async () => {
-    const maxLengthContact = contactFormTestData.edgeCases.maxLengthSubject;
-    
-    await test.step('Fill contact form with maximum length data', async () => {
-      await mainPage.fillContactForm(maxLengthContact);
+  test.describe('Submit contact form with maximum allowed message length', () => {
+    test('Maximum subject length', async () => {
+      const maxLengthSubjectContact = contactFormTestData.generateMaxLengthContact();
+      await mainPage.performValidContactSubmission(maxLengthSubjectContact);
+      await expect(mainPage.getContactFormSuccessElement(maxLengthSubjectContact.name),
+        'Success message is not displayed for maximum subject length submission').toBeVisible();
     });
-    
-    await test.step('Submit contact form with maximum length data', async () => {
-      await mainPage.submitContactForm();
-    });
-    
-    await test.step('Verify success message is displayed for maximum length submission', async () => {
-      await expect(mainPage.getContactFormSuccessElement(maxLengthContact.name)).toBeVisible({ timeout: 500 });
+
+    test('Maximum message length', async () => {
+      const maxLengthMessageContact = contactFormTestData.generateMaxLengthMessageContact();
+      await mainPage.performValidContactSubmission(maxLengthMessageContact);
+      await expect(mainPage.getContactFormSuccessElement(maxLengthMessageContact.name),
+        'Success message is not displayed for maximum message length submission').toBeVisible();
     });
   });
 });

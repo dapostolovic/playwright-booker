@@ -1,6 +1,43 @@
-/**
- * Test data for room selection scenarios
- */
+import { faker } from '@faker-js/faker';
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  testName?: string; // Contact forms are used in both positive and negative scenarios, so testName should be optional
+}
+
+interface AdminRoomFormData {
+  roomName: string;
+  type: 'Single' | 'Double' | 'Suite';
+  accessible: boolean;
+  price: number;
+  features: {
+    wifi: boolean;
+    refreshments: boolean;
+    tv: boolean;
+    safe: boolean;
+    radio: boolean;
+    views: boolean;
+  };
+  testName: string; //Admin rooms are primarily used in data-driven negative testing, so testName should be mandatory
+}
+
+//Test data for admin portal authentication
+export const adminCredentials = { 
+  valid: {
+    username: 'admin',
+    password: 'password'
+  },
+  invalid: {
+    username: faker.internet.username(),
+    password: faker.internet.password()
+  },
+};
+
+//Test data for room selection scenarios
 export const roomTestData = {
   availableRooms: [
     {
@@ -27,204 +64,105 @@ export const roomTestData = {
   ]
 };
 
-/**
- * Test data for contact form scenarios
- */
+//Test data for sending contact form scenarios
 export const contactFormTestData = {
-  validContact: {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1234567890',
-    subject: 'Inquiry about room booking',
-    message: 'I would like to inquire about availability for a single room for next weekend. Please let me know the rates and availability.'
-  },
+  generateContact: (overrides: Partial<ContactFormData> = {}) => ({
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    phone: faker.phone.number({ style: 'international' }),
+    subject: faker.lorem.sentence({ min: 2, max: 5 }),
+    message: faker.lorem.paragraph({ min: 2, max: 4 }),
+    ...overrides
+  }),
+
+  generateValidContact: () => contactFormTestData.generateContact(),
   
-  // Data-driven invalid contacts
-  invalidContacts: [
-    {
+  generateMaxLengthContact: () => contactFormTestData.generateContact({
+    subject: faker.lorem.sentence({ min: 100, max: 100 }).slice(0, 100)
+  }),
+
+  generateMaxLengthMessageContact: () => contactFormTestData.generateContact({
+    message: faker.lorem.paragraph({ min: 2000, max: 2000 }).slice(0, 2000)
+  }),
+
+  // Generate invalid contacts data
+  generateInvalidContacts: () => [
+
+    contactFormTestData.generateContact({
       name: '',
-      email: 'john.doe@example.com',
-      phone: '+1234567890',
-      subject: 'Valid subject here',
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement.',
       testName: 'Empty name'
-    },
-    {
-      name: 'John',
-      email: 'invalid-email-format',
-      phone: '+1234567890',
-      subject: 'Valid subject here',
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement.',
-      testName: 'Invalid email format'
-    },
-    {
-      name: 'John',
-      email: 'john.doe@example.com',
-      phone: '+1234567890',
-      subject: 'Hi',
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement.',
-      testName: 'Short subject'
-    },
-    {
-      name: 'John',
-      email: 'john.doe@example.com',
-      phone: '+1234567890',
-      subject: 'Valid subject here',
-      message: 'Too short',
-      testName: 'Short message'
-    },
-    {
-      name: 'John',
-      email: '',
-      phone: '+1234567890',
-      subject: 'Valid subject here',
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement.',
-      testName: 'Empty email'
-    },
-    {
-      name: 'John',
-      email: 'john.doe@example.com',
-      phone: '',
-      subject: 'Valid subject here',
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement.',
-      testName: 'Empty phone'
-    }
-  ],
-  
-  edgeCases: {
-    maxLengthSubject: {
-      name: 'John',
-      email: 'john.doe@example.com',
-      phone: '+1234567890',
-      subject: 'A'.repeat(100),  // Exactly 100 characters (max allowed)
-      message: 'This is a valid message with more than twenty characters to meet the minimum requirement for testing.'
-    },
+    }),
     
-    maxLengthMessage: {
-      name: 'John',
-      email: 'john.doe@example.com',
-      phone: '+1234567890',
-      subject: 'Testing maximum message length',
-      message: 'A'.repeat(2000)  // Exactly 2000 characters (max allowed)
-    }
-  }
-};
-
-/**
- * Test data for admin portal authentication
- */
-export const adminCredentials = {
-  valid: {
-    username: 'admin',
-    password: 'password'
-  },
-  invalid: [
-    { username: 'wrongadmin', password: 'password' },
-    { username: 'admin', password: 'wrongpassword' },
-    { username: '', password: '' },
-    { username: 'admin', password: '' },
-    { username: '', password: 'password' }
-  ]
-};
-
-/**
- * Test data for admin room management
- */
-export const adminRoomTestData = {
-  validRoom: {
-    roomName: '301',
-    type: 'Double' as const,
-    accessible: true,
-    price: 150,
-    features: {
-      wifi: true,
-      refreshments: true,
-      tv: true,
-      safe: true,
-      radio: true,
-      views: true
-    }
-  },
-  
-  // Data-driven invalid rooms
-  invalidRooms: [
-    {
-      roomName: '',
-      type: 'Single' as const,
-      accessible: false,
-      price: 100,
-      features: {
-        wifi: false,
-        refreshments: false,
-        tv: false,
-        safe: false,
-        radio: false,
-        views: false
-      },
-      testName: 'Empty room name'
-    },
-    {
-      roomName: '302',
-      type: 'Single' as const,
-      accessible: false,
-      price: 0,
-      features: {
-        wifi: false,
-        refreshments: false,
-        tv: false,
-        safe: false,
-        radio: false,
-        views: false
-      },
-      testName: 'Price is zero'
-    },
-    {
-      roomName: '303',
-      type: 'Single' as const,
-      accessible: false,
-      price: -50,
-      features: {
-        wifi: false,
-        refreshments: false,
-        tv: false,
-        safe: false,
-        radio: false,
-        views: false
-      },
-      testName: 'Negative price'
-    },
-    {
-      roomName: '304',
-      type: 'Single' as const,
-      accessible: false,
-      price: 0.5,
-      features: {
-        wifi: false,
-        refreshments: false,
-        tv: false,
-        safe: false,
-        radio: false,
-        views: false
-      },
-      testName: 'Price less than 1'
-    }
+    contactFormTestData.generateContact({
+      email: faker.lorem.word(), 
+      testName: 'Invalid email format'
+    }),
+    
+    contactFormTestData.generateContact({
+      subject: faker.string.alpha({ length: { min: 1, max: 4 } }), // 1-4 characters
+      testName: 'Short subject'
+    }),
+    
+    contactFormTestData.generateContact({
+      message: faker.string.alpha({ length: { min: 1, max: 19 } }), // 1-19 characters
+      testName: 'Short message'
+    }),
+    
+    contactFormTestData.generateContact({
+      email: '',
+      testName: 'Empty email'
+    }),
+    
+    contactFormTestData.generateContact({
+      phone: '',
+      testName: 'Empty phone'
+    })
   ],
-  
-  testRoom: {
-    roomName: '999', // For deletion test
-    type: 'Suite' as const,
-    accessible: false,
-    price: 250,
-    features: {
-      wifi: true,
-      refreshments: false,
-      tv: true,
-      safe: false,
-      radio: false,
-      views: true
-    }
-  },
+};
 
+//Test data for admin room management scenarios
+export const adminRoomTestData = { 
+  generateValidRoom: (overrides: Partial<AdminRoomFormData> = {}) => ({
+    roomName: faker.string.numeric(3),
+    type: faker.helpers.arrayElement(['Single', 'Double', 'Suite'] as const),
+    accessible: faker.datatype.boolean(),
+    price: faker.number.int({ min: 1, max: 899 }),
+    features: {
+      wifi: faker.datatype.boolean(),
+      refreshments: faker.datatype.boolean(),
+      tv: faker.datatype.boolean(),
+      safe: faker.datatype.boolean(),
+      radio: faker.datatype.boolean(),
+      views: faker.datatype.boolean()
+    },
+    ...overrides
+  }),
+
+  // Generate invalid room data
+  generateInvalidRooms: () => [
+
+    adminRoomTestData.generateValidRoom({
+      roomName: '',
+      testName: 'Empty room name'
+    }),
+    
+    adminRoomTestData.generateValidRoom({
+      price: 0,
+      testName: 'Price is zero'
+    }),
+    
+    adminRoomTestData.generateValidRoom({
+      price: faker.number.int({ min: -100, max: -1 }),
+      testName: 'Negative price'
+    }),
+    
+    adminRoomTestData.generateValidRoom({
+      price: faker.number.float({ min: 0.1, max: 0.9 }),
+      testName: 'Price less than 1'
+    })
+  ],
+
+  //Test data for API testing scenarios
   testRoomForAPI: {
     roomName: '900api',
     type: 'Suite' as const,
@@ -241,11 +179,4 @@ export const adminRoomTestData = {
       views: true
     }
   }
-};
-
-/**
- * Generate random room number for testing
- */
-export const generateRandomRoomNumber = (): string => {
-  return Math.floor(Math.random() * (999 - 201) + 201).toString();
 };
